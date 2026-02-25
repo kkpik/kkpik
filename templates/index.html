@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>英文チェッカー</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <h1>英文チェッカー</h1>
+    <p class="subtitle">英文を入力すると、文法チェック・修正例・解説・点数を表示します。</p>
+
+    {% if error_message %}
+      <p class="notice">{{ error_message }}</p>
+    {% endif %}
+
+    <form method="post" class="card">
+      <label for="english_text">英文を入力</label>
+      <textarea id="english_text" name="english_text" rows="6" placeholder="例: He go to school yesterday.">{{ request.form.get('english_text', '') }}</textarea>
+      <button type="submit">チェックする</button>
+    </form>
+
+    {% if result %}
+    <section class="card result">
+      <h2>結果</h2>
+      <p><strong>点数:</strong> <span class="score">{{ result.score }}</span> / 100 <span class="badge">{{ result.label }}</span></p>
+
+      <div class="result-block">
+        <h3>入力文</h3>
+        <p>{{ result.original }}</p>
+      </div>
+
+      <div class="result-block">
+        <h3>修正例</h3>
+        <p>{{ result.corrected }}</p>
+      </div>
+
+      <div class="result-block">
+        <h3>解説（指摘一覧）</h3>
+        {% if result.issues %}
+          <ul>
+            {% for issue in result.issues %}
+              <li>
+                <p><strong>説明:</strong> {{ issue.message }}</p>
+                <p><strong>文脈:</strong> {{ issue.context }}</p>
+                {% if issue.suggestions %}
+                  <p><strong>候補:</strong> {{ issue.suggestions | join(', ') }}</p>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>文法上の大きな問題は見つかりませんでした。とても良い英文です！</p>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="card next-step">
+      <h2>次にやること（3ステップ）</h2>
+      <ol>
+        <li>README の「2.プロジェクトの準備」を上から順番に実行</li>
+        <li><code>python app.py</code> で起動して、<code>http://127.0.0.1:5000</code> を開く</li>
+        <li>授業で使う例文を入力し、結果を確認する</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
